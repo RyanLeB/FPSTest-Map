@@ -6,21 +6,24 @@ using UnityEngine;
 
 public class FPSController : MonoBehaviour
 {
+    
+    private bool canMove = true;
+    
     [Header("Set Gravity")]
     // gravity 
-    public float gravity = 20.0f;
+    [SerializeField] private float gravity = 20.0f;
 
     [Header("Set Character Values")]
     // character speeds
-    public float walkSpeed = 7.0f;
-    public float runSpeed = 13.0f;
-    public float jumpSpeed = 8.5f;
+    [SerializeField] private float walkSpeed = 7.0f;
+    [SerializeField] private float runSpeed = 13.0f;
+    [SerializeField] private float jumpSpeed = 8.5f;
 
     [Header("Set Camera Controls")]
     // camera controls
-    public Camera playerCamera;
-    public float lookSpeed = 2.5f;
-    public float lookLimitX = 45.0f;
+    [SerializeField] private Camera playerCamera;
+    [SerializeField] private float lookSpeed = 2.5f;
+    [SerializeField] private float lookLimitX = 45.0f;
 
     
     // character controller
@@ -28,7 +31,6 @@ public class FPSController : MonoBehaviour
     float rotationX = 0;
     Vector3 moveDirection = Vector3.zero;
 
-    private bool canMove = true;
     
 
     void Start()
@@ -43,19 +45,19 @@ public class FPSController : MonoBehaviour
 
     void Update()
     {
-        Vector3 forward = transform.TransformDirection(Vector3.forward);
-        Vector3 right = transform.TransformDirection(Vector3.right);
+        Vector3 moveForward = transform.TransformDirection(Vector3.forward);
+        Vector3 moveRight = transform.TransformDirection(Vector3.right);
         
         
-        // isRunning bool to make player run
+        // isRun to make player run
         
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
+        bool isRun = Input.GetKey(KeyCode.LeftShift);
         
-        float curSpeedX = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
-        float curSpeedY = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
+        float cursorSpeedX = canMove ? (isRun ? runSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
+        float cursorSpeedY = canMove ? (isRun ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
         
         float movementDirectionY = moveDirection.y;
-        moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+        moveDirection = (moveForward * cursorSpeedX) + (moveRight * cursorSpeedY);
 
         // jump 
         
@@ -68,7 +70,7 @@ public class FPSController : MonoBehaviour
             moveDirection.y = movementDirectionY;
         }
 
-       
+        // gravity 
         if (!characterController.isGrounded)
         {
             moveDirection.y -= gravity * Time.deltaTime;
@@ -77,7 +79,7 @@ public class FPSController : MonoBehaviour
         // Moves the controller
         characterController.Move(moveDirection * Time.deltaTime);
 
-        // Player and Camera rotation
+        // Camera
         if (canMove)
         {
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
