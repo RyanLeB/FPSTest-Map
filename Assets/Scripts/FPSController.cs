@@ -38,7 +38,7 @@ public class FPSController : MonoBehaviour
         // Locks mouse cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        
+        playerCamera = Camera.main;
         characterController = GetComponent<CharacterController>();
 
     }
