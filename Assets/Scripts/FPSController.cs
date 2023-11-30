@@ -25,7 +25,15 @@ public class FPSController : MonoBehaviour
     [SerializeField] private float lookSpeed = 2.5f;
     [SerializeField] private float lookLimitX = 45.0f;
 
-    
+
+    [Header("Set Crouch Values")]
+    [SerializeField] private float crouchSpeed = 3.0f;
+    [SerializeField] private float crouchHeight = 0.5f;
+    [SerializeField] private float standingHeight = 2.0f;
+
+    private bool isCrouching = false;
+
+
     // character controller
     CharacterController characterController;
     float rotationX = 0;
