@@ -16,7 +16,7 @@ public class FPSController : MonoBehaviour
     [Header("Set Character Values")]
     // character speeds
     [SerializeField] private float walkSpeed = 7.0f;
-    [SerializeField] private float runSpeed = 13.0f;
+    [SerializeField] private float sprintSpeed = 13.0f;
     [SerializeField] private float jumpSpeed = 8.5f;
 
     [Header("Set Camera Controls")]
@@ -49,12 +49,12 @@ public class FPSController : MonoBehaviour
         Vector3 moveRight = transform.TransformDirection(Vector3.right);
         
         
-        // isRun to make player run
+        // isSprinting to make player run
         
-        bool isRun = Input.GetKey(KeyCode.LeftShift);
+        bool isSprinting = Input.GetKey(KeyCode.LeftShift);
         
-        float cursorSpeedX = canMove ? (isRun ? runSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
-        float cursorSpeedY = canMove ? (isRun ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
+        float cursorSpeedX = canMove ? (isSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
+        float cursorSpeedY = canMove ? (isSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
         
         float movementDirectionY = moveDirection.y;
         moveDirection = (moveForward * cursorSpeedX) + (moveRight * cursorSpeedY);
