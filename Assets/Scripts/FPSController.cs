@@ -60,7 +60,8 @@ public class FPSController : MonoBehaviour
         // isSprinting to make player run
         
         bool isSprinting = Input.GetKey(KeyCode.LeftShift);
-        
+
+        float speed = isCrouching ? crouchSpeed : (isSprinting ? sprintSpeed : walkSpeed);
         float cursorSpeedX = canMove ? (isSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
         float cursorSpeedY = canMove ? (isSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
         
@@ -76,6 +77,12 @@ public class FPSController : MonoBehaviour
         else
         {
             moveDirection.y = movementDirectionY;
+        }
+
+        // crouch
+        if (Input.GetKeyDown(KeyCode.LeftControl) && canMove)
+        {
+            ToggleCrouch();
         }
 
         // gravity 
@@ -98,4 +105,20 @@ public class FPSController : MonoBehaviour
             rotationX = Mathf.Clamp(rotationX, -lookLimitX, lookLimitX);
         }
     }
+
+    void ToggleCrouch()
+    {
+        isCrouching = !isCrouching;
+
+        if (isCrouching)
+        {
+            characterController.height = crouchHeight;
+        }
+        else
+        {
+            characterController.height = standingHeight;
+        }
+    }
+
+
 }
