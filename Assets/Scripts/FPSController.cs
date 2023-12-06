@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class FPSController : MonoBehaviour
 {
-    
+
     private bool canMove = true;
-    
+
     [Header("Set Gravity")]
     // gravity 
     [SerializeField] private float gravity = 20.0f;
@@ -31,7 +31,7 @@ public class FPSController : MonoBehaviour
     [SerializeField] private float crouchHeight = 0.5f;
     [SerializeField] private float standingHeight = 2.0f;
 
-    private bool isCrouching = false;
+    private bool isCrouchKeyPressed = false;
 
 
     // character controller
@@ -39,7 +39,7 @@ public class FPSController : MonoBehaviour
     float rotationX = 0;
     Vector3 moveDirection = Vector3.zero;
 
-    
+
 
     void Start()
     {
@@ -55,21 +55,21 @@ public class FPSController : MonoBehaviour
     {
         Vector3 moveForward = transform.TransformDirection(Vector3.forward);
         Vector3 moveRight = transform.TransformDirection(Vector3.right);
-        
-        
+
+
         // isSprinting to make player run
-        
+
         bool isSprinting = Input.GetKey(KeyCode.LeftShift);
 
-        float speed = isCrouching ? crouchSpeed : (isSprinting ? sprintSpeed : walkSpeed);
+        float speed = isCrouchKeyPressed ? crouchSpeed : (isSprinting ? sprintSpeed : walkSpeed);
         float cursorSpeedX = canMove ? (isSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
         float cursorSpeedY = canMove ? (isSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
-        
+
         float movementDirectionY = moveDirection.y;
         moveDirection = (moveForward * cursorSpeedX) + (moveRight * cursorSpeedY);
 
         // jump 
-        
+
         if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
         {
             moveDirection.y = jumpSpeed;
@@ -79,10 +79,30 @@ public class FPSController : MonoBehaviour
             moveDirection.y = movementDirectionY;
         }
 
-        // crouch
-        if (Input.GetKeyDown(KeyCode.LeftControl) && canMove)
+        if (Input.GetKeyDown(KeyCode.C) && canMove)
         {
-            ToggleCrouch();
+            isCrouchKeyPressed = true;
+        }
+        if (Input.GetKeyUp(KeyCode.C) && canMove)
+        {
+            isCrouchKeyPressed = false;
+        }
+
+        if (isCrouchKeyPressed)
+        {
+            // Check for obstacles above before crouching
+            if (!CheckHeadObstacle())
+            {
+                characterController.height = crouchHeight;
+            }
+            else
+            {
+                isCrouchKeyPressed = true; // Keep crouching if obstacle above
+            }
+        }
+        else
+        {
+            characterController.height = standingHeight;
         }
 
         // gravity 
@@ -99,8 +119,8 @@ public class FPSController : MonoBehaviour
         {
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
             transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
-            
-            
+
+
             rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
             rotationX = Mathf.Clamp(rotationX, -lookLimitX, lookLimitX);
         }
@@ -108,17 +128,41 @@ public class FPSController : MonoBehaviour
 
     void ToggleCrouch()
     {
-        isCrouching = !isCrouching;
+        isCrouchKeyPressed = !isCrouchKeyPressed;
 
-        if (isCrouching)
+        if (isCrouchKeyPressed)
         {
-            characterController.height = crouchHeight;
+
+            if (!CheckHeadObstacle())
+            {
+                characterController.height = crouchHeight;
+            }
+            else
+            {
+                isCrouchKeyPressed = true; // Keep crouching if obstacle above
+            }
         }
         else
         {
             characterController.height = standingHeight;
         }
     }
+        bool CheckHeadObstacle()
+        {
+            float radius = characterController.radius;
+            float height = isCrouchKeyPressed ? crouchHeight : standingHeight;
 
+            // Cast a sphere to check for obstacles above
+            bool hasObstacle = Physics.SphereCast(
+                transform.position + Vector3.up * (height - radius), // Start position
+                radius, // Sphere radius
+                Vector3.up, // Direction
+                out RaycastHit hitInfo,
+                height - radius, // Max distance
+                ~LayerMask.GetMask("Player") // Ignore the player's own collider
+            );
 
-}
+            return hasObstacle;
+        }
+
+    }
